@@ -32,10 +32,7 @@ const CreateNewProject = () => {
         }, {
             onSuccess: () => {
                 toast.success("Project created successfully!")
-                refetchProjects().catch((error) => {
-                    toast.error("Failed to refetch projects")
-                    console.error("Failed to refetch projects:", error)
-                })
+                void refetchProjects()
                 reset()
             },
             onError: (error) => {

@@ -1,8 +1,15 @@
 "use client"
 
+import useProject from "@/hooks/use-project"
+
 const Dashboard = () => {
+
+    const { project } = useProject()
+
     return (
-        <div>HEl</div>
+        <div>
+            <h1>{project?.name}</h1>
+        </div>
     )
 }
 
