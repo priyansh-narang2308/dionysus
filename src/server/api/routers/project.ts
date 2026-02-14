@@ -40,5 +40,39 @@ export const projectRouter = createTRPCRouter({
             }
         })
         return projects
-    })
+    }),
+
+    getCommits: protectedProcedure
+        .input(
+            z.object({
+                projectId: z.string()
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            await pullCommits(input.projectId).catch((error) => {
+                console.log(error)
+            })
+            const commits = await ctx.db.githubCommits.findMany({
+                where: {
+                    projectId: input.projectId
+                },
+                orderBy: {
+                    commitDate: 'desc'
+                }
+            })
+            return commits
+        }),
+    archiveProject: protectedProcedure
+        .input(z.object({ projectId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            return await ctx.db.project.update({
+                where: { id: input.projectId },
+                data: { deletedAt: new Date() }
+            })
+        }),
+    refreshCommits: protectedProcedure
+        .input(z.object({ projectId: z.string() }))
+        .mutation(async ({ input }) => {
+            return await pullCommits(input.projectId)
+        })
 });

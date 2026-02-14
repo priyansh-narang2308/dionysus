@@ -3,6 +3,7 @@
 import useProject from "@/hooks/use-project"
 import { ExternalLink, Github } from "lucide-react"
 import Link from "next/link"
+import CommitLogComponent from "./_components/commit-log-component"
 
 const Dashboard = () => {
     const { project } = useProject()
@@ -11,10 +12,7 @@ const Dashboard = () => {
 
     return (
         <div>
-{project.id}
-
             <div className="flex items-center justify-between flex-wrap gap-y-4">
-                {/* Github link */}
                 <div className="
         group relative w-fit max-w-full
         rounded-xl
@@ -86,10 +84,9 @@ const Dashboard = () => {
                     Meeting card
                 </div>
             </div>
-
             <div className="mt-8"></div>
 
-            Comit log
+            <CommitLogComponent />
         </div>
 
     )
