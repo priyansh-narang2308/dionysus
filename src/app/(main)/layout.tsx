@@ -11,10 +11,14 @@ const MainProtectedLayout = ({
             <AppSidebar />
             <main className="w-full m-2">
                 <div className="flex items-center gap-2 border-sidebar-border bg-sidebar border shadow-lg rounded-md p-2 px-4">
-                    <SidebarTrigger />
+
+                    <div className="md:hidden">
+                        <SidebarTrigger />
+                    </div>
                     <div className="ml-auto"></div>
                     <UserButton />
                 </div>
+
 
                 <div className="h-4"></div>
                 {/* main Content */}
