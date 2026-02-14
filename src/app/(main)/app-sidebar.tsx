@@ -12,9 +12,9 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
+import useProject from "@/hooks/use-project"
 import { cn } from "@/lib/utils"
 import { BotIcon, CreditCard, LayoutDashboardIcon, Plus, Presentation } from "lucide-react"
 import Image from "next/image"
@@ -44,25 +44,12 @@ const items = [
     }
 ]
 
-const projects = [
-    {
-        title: "Project 1"
-    },
-    {
-        title: "Project 2"
-    },
-    {
-        title: "Project 3"
-    },
-    {
-        title: "Project 4"
-    }
-]
-
 const AppSidebar = () => {
 
     const pathname = usePathname()
     const { open } = useSidebar()
+
+    const { projects, projectId, setProjectId } = useProject()
 
     return (
         <Sidebar collapsible="icon" variant="floating">
@@ -115,13 +102,28 @@ const AppSidebar = () => {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {projects?.map((project) => (
-                                <SidebarMenuItem key={project.title}>
-                                    <SidebarMenuButton asChild tooltip={project.title}>
-                                        <div className="flex items-center gap-3 cursor-pointer">
-                                            <div className={cn("rounded-sm border size-6 flex items-center justify-center text-sm bg-primary text-white font-medium shrink-0")}>
-                                                {project.title[0]}
+                                <SidebarMenuItem key={project.name}>
+                                    <SidebarMenuButton asChild tooltip={project.name}>
+                                        <div
+                                            onClick={() => setProjectId(project.id)}
+                                            className="flex items-center gap-3 cursor-pointer"
+                                        >
+                                            <div className={cn(
+                                                "rounded-sm border size-6 flex items-center justify-center text-sm font-medium shrink-0 transition-colors",
+                                                project.id === projectId
+                                                    ? "bg-blue-600 text-white border-blue-500"
+                                                    : "bg-background text-muted-foreground border-border"
+                                            )}>
+                                                {project.name[0]}
                                             </div>
-                                            {open && <span className="text-sm font-medium">{project.title}</span>}
+                                            {open && (
+                                                <span className={cn(
+                                                    "text-sm font-medium",
+                                                    project.id === projectId ? "text-primary" : "text-muted-foreground"
+                                                )}>
+                                                    {project.name}
+                                                </span>
+                                            )}
                                         </div>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
