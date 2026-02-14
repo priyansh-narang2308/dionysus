@@ -10,8 +10,7 @@ export const projectRouter = createTRPCRouter({
                 githubToken: z.string().optional()
             })
         )
-        .mutation(async ({ ctx, input }) => {
+        .mutation(async ({ input }) => {
             console.log("Input is: ", input)
-            return true
         }),
 });
