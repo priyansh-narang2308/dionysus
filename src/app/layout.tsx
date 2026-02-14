@@ -9,7 +9,6 @@ import { TRPCReactProvider } from "@/trpc/react";
 export const metadata: Metadata = {
   title: "Dionysys",
   description: "Github Analyzer",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
 const poppins = Poppins({
