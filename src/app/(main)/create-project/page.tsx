@@ -1,7 +1,9 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { api } from "@/trpc/react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 type FormInput = {
     repoUrl: string
@@ -10,17 +12,32 @@ type FormInput = {
 }
 
 const CreateNewProject = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm<FormInput>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<FormInput>({
         defaultValues: {
             repoUrl: "",
             projectName: "",
             githubToken: ""
         }
     })
+    const createProject = api.project.createProject.useMutation()
 
     const onSubmit = (data: FormInput) => {
         console.log("Form Data:", data)
-        alert("Project Created Successfully!")
+        createProject.mutate({
+            name: data.projectName,
+            githubUrl: data.repoUrl,
+            githubToken: data.githubToken
+        }, {
+            onSuccess: () => {
+                toast.success("Project created successfully!")
+                reset()
+            },
+            onError: (error) => {
+                toast.error(error.message ||
+                    "Failed to create a project"
+                )
+            }
+        })
         return true
     }
 

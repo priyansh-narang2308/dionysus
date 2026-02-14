@@ -5,12 +5,13 @@ import { Poppins } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Dionysys",
+  title: "Dionysus",
   description: "Github Analyzer",
-  icons:{
-    icon:"/icon.png"
+  icons: {
+    icon: "/icon.png"
   }
 };
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <html lang="en" className={`${poppins.className}`}>
         <body suppressHydrationWarning>
           <TRPCReactProvider>{children}</TRPCReactProvider>
+          <Toaster richColors position="bottom-right" />
         </body>
       </html>
     </ClerkProvider>
