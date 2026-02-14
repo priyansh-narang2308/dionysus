@@ -263,7 +263,7 @@ const AppSidebar = () => {
                                         className={cn(
                                             "transition-all cursor-pointer",
                                             open
-                                                ? "w-full justify-start gap-2"
+                                                ? "w-full justify-start gap-2 mt-4"
                                                 : "w-10 h-10 p-0 justify-center"
                                         )}
                                     >
