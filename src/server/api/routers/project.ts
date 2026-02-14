@@ -7,9 +7,11 @@ export const projectRouter = createTRPCRouter({
             z.object({
                 name: z.string(),
                 githubUrl: z.string(),
+                githubToken: z.string().optional()
             })
         )
         .mutation(async ({ ctx, input }) => {
-            console.log("Eh", ctx.user.userId)
+            console.log("Input is: ", input)
+            return true
         }),
 });

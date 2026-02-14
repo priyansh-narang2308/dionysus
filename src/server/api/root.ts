@@ -16,7 +16,7 @@ export type AppRouter = typeof appRouter;
 /**
  * Create a server-side caller for the tRPC API.
  * @example
- * const trpc = createCaller(createContext);
+ * const trpc = createCaller(createCo ntext);
  * const res = await trpc.project.createProject({ ... });
  *       ^? Project
  */
