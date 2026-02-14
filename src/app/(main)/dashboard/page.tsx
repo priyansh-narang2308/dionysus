@@ -1,8 +1,8 @@
-import React from 'react'
+"use client"
 
 const Dashboard = () => {
     return (
-        <div>Welcome to GOA Singham</div>
+        <div>HEl</div>
     )
 }
 

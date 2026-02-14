@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`${poppins.className}`}>
-        <body>
+        <body suppressHydrationWarning>
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </body>
       </html>
