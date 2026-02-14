@@ -5,3 +5,5 @@
 ## Using uselocalstorage to store the project id
 
 ## Using octokit to get the github files
+
+## So if u add github.com/username/commit/commithash.diff (This will show the what all changes happend in the commit made so using that we will feed to gemini api)
