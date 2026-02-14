@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import useRefetch from "@/hooks/use-refetch"
 import { api } from "@/trpc/react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -20,6 +21,7 @@ const CreateNewProject = () => {
         }
     })
     const createProject = api.project.createProject.useMutation()
+    const refetchProjects = useRefetch()
 
     const onSubmit = (data: FormInput) => {
         console.log("Form Data:", data)
@@ -30,6 +32,10 @@ const CreateNewProject = () => {
         }, {
             onSuccess: () => {
                 toast.success("Project created successfully!")
+                refetchProjects().catch((error) => {
+                    toast.error("Failed to refetch projects")
+                    console.error("Failed to refetch projects:", error)
+                })
                 reset()
             },
             onError: (error) => {
