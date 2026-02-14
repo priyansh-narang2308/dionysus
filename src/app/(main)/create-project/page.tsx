@@ -25,11 +25,11 @@ const CreateNewProject = () => {
     }
 
     return (
-        <div className="flex items-center gap-12 h-full justify-center">
+        <div className="flex flex-col lg:flex-row items-center gap-12 h-full justify-center p-6 lg:p-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={"/undraw.svg"} className="h-56 w-auto" alt="image" />
-            <div>
-                <div>
+            <img src={"/undraw.svg"} className="h-56 w-auto hidden lg:block" alt="image" />
+            <div className="w-full max-w-md">
+                <div className="text-center lg:text-left">
                     <h1 className="font-semibold text-2xl">
                         Link your GitHub Repository
                     </h1>
@@ -40,14 +40,14 @@ const CreateNewProject = () => {
 
                 <div className="h-4"></div>
 
-                <div className="w-[400px]">
+                <div>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-1">
                             <Input
                                 {...register("projectName", { required: "Project name is required" })}
                                 placeholder="Project Name"
                             />
-                            {errors.projectName && <span className="text-xs text-destructive">{errors.projectName.message}</span>}
+                            {errors.projectName && <span className="text-xs text-destructive font-medium">{errors.projectName.message}</span>}
                         </div>
 
                         <div className="space-y-1">
@@ -56,7 +56,7 @@ const CreateNewProject = () => {
                                 placeholder="GitHub Repository URL"
                                 type="url"
                             />
-                            {errors.repoUrl && <span className="text-xs text-destructive">{errors.repoUrl.message}</span>}
+                            {errors.repoUrl && <span className="text-xs text-destructive font-medium">{errors.repoUrl.message}</span>}
                         </div>
 
                         <div className="space-y-1">
@@ -68,7 +68,7 @@ const CreateNewProject = () => {
                         </div>
 
                         <div className="pt-2">
-                            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer transition-colors shadow-md">
+                            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]">
                                 Create Project
                             </Button>
                         </div>

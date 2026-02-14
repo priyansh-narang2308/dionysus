@@ -22,3 +22,15 @@ model User {
 
     credits Int @default(200) // 1 credit means 1 file processed
 }
+
+model Project {
+    id String @id @default(uuid())
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name      String
+    githubUrl String
+
+    deletedAt DateTime?
+}
