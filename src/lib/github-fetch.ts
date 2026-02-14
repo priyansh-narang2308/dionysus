@@ -46,6 +46,13 @@ export const pullCommits = async (projectId: string) => {
     return unprocessedCommits
 }
 
+async function summariseCommit(githubUrl: string, commitHash: string) {
+    const [owner, repo] = githubUrl.replace("https://github.com/", "").split("/");
+    if (!owner || !repo) {
+        throw new Error("Invalid github url");
+    }
+}
+
 // Fetch project github url
 async function fetchProjectGithubUrl(projectId: string) {
     const project = await db.project.findUnique({
