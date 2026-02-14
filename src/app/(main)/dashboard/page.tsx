@@ -51,17 +51,17 @@ const Dashboard = () => {
                             href={project.githubUrl}
                             target="_blank"
                             className="
-              inline-flex items-center gap-1
-              text-sm font-semibold
-              text-blue-500
-              hover:text-blue-400
-              hover:underline
-              transition
-              break-all
-            "
+        inline-flex items-center gap-1
+        text-sm font-semibold
+        text-blue-500
+        hover:text-blue-600
+        hover:underline
+        transition
+        whitespace-nowrap  cursor-pointer
+    "
                         >
                             View Repo
-                            <ExternalLink className="size-3" />
+                            <ExternalLink className="size-3 shrink-0" />
                         </Link>
 
                     </div>
