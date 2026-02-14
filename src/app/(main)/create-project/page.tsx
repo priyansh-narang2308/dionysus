@@ -85,7 +85,7 @@ const CreateNewProject = () => {
                         </div>
 
                         <div className="pt-2">
-                            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]">
+                            <Button type="submit" disabled={createProject.isPending} className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]">
                                 Create Project
                             </Button>
                         </div>
