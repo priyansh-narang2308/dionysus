@@ -1,5 +1,7 @@
 import { db } from "@/server/db";
 import { Octokit } from "octokit";
+import axios from "axios"
+import { summariseCommitFromGemini } from "./gemini-integration";
 
 export const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
@@ -43,14 +45,47 @@ export const pullCommits = async (projectId: string) => {
     const commitHashes = await getCommitHashes(githubUrl)
     // get the most updated 15 comits and compare with the daabse have we read that or not as we dont want summary for all commits
     const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
-    return unprocessedCommits
+
+    // For the AI
+    const summaryResponse = await Promise.allSettled(unprocessedCommits.map(commit => {
+        return summariseCommit(githubUrl, commit.commitHash)
+    }))
+    const summaries = summaryResponse.map((response) => {
+        if (response.status === "fulfilled") {
+            return response.value
+        }
+        return ""
+    })
+
+
+    // To save in databse
+    const commits = await db.githubCommits.createMany({
+        data: summaries.map((summary, index) => {
+            console.log(`processing commit: ${index}`)
+            return {
+                projectId,
+                commitHash: unprocessedCommits[index]?.commitHash ?? "",
+                commitMessage: unprocessedCommits[index]?.commitMessage ?? "",
+                commitAuthorName: unprocessedCommits[index]?.commitAuthorName ?? "",
+                commitAuthorAvatar: unprocessedCommits[index]?.commitAuthorAvatar ?? "",
+                commitDate: new Date(unprocessedCommits[index]?.commitDate ?? ""),
+                commitSummary: summary
+            }
+        })
+    })
+
+    return commits
 }
 
+// fetch it from AI
 async function summariseCommit(githubUrl: string, commitHash: string) {
-    const [owner, repo] = githubUrl.replace("https://github.com/", "").split("/");
-    if (!owner || !repo) {
-        throw new Error("Invalid github url");
-    }
+    // get the diff and pass it into ai
+    const { data } = await axios.get<string>(`${githubUrl}/commit/${commitHash}.diff`, {
+        headers: {
+            Accept: `application/vnd.github.v3.diff`,
+        }
+    })
+    return await summariseCommitFromGemini(data) || "No summary generated"
 }
 
 // Fetch project github url
@@ -84,8 +119,8 @@ async function filterUnprocessedCommits(projectId: string, commitHashes: Respons
     return unprocessedCommits
 }
 
-await pullCommits("07f9e84f-d583-43fa-82df-0b5bdffbb926").then(() => {
-    console.log()
-}).catch((error) => {
-    console.log(error)
-})
+// await pullCommits("07f9e84f-d583-43fa-82df-0b5bdffbb926").then(() => {
+//     console.log()
+// }).catch((error) => {
+//     console.log(error)
+// })

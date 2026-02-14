@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { pullCommits } from "@/lib/github-fetch";
 
 export const projectRouter = createTRPCRouter({
     createProject: protectedProcedure
@@ -23,6 +24,7 @@ export const projectRouter = createTRPCRouter({
                     }
                 }
             })
+            await pullCommits(project.id)
             return project
         }),
     // Fetch all the projects from the database
@@ -34,7 +36,7 @@ export const projectRouter = createTRPCRouter({
                         userId: ctx.user.userId!
                     }
                 },
-                deletedAt:null
+                deletedAt: null
             }
         })
         return projects
