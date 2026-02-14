@@ -12,6 +12,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
 import useProject from "@/hooks/use-project"
@@ -54,28 +55,45 @@ const AppSidebar = () => {
     return (
         <Sidebar collapsible="icon" variant="floating">
             <SidebarHeader>
-                <div className="flex items-center gap-2">
-                    <Image src={"/logo.png"} height={40} width={40} alt="logo" />
-                    <h1 className="text-xl font-bold tracking-tight text-primary/80">
-                        {open && "Dionysus"}
-                    </h1>
+                <div className="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-4 transition-all duration-300">
+                    <div className="flex items-center gap-3 px-2 py-2">
+                        <Image src={"/logo.png"} height={40} width={40} alt="logo" className="rounded-lg shadow-sm shrink-0" />
+                        {open && (
+                            <h1 className="text-xl font-bold tracking-tight text-primary/80 animate-in fade-in slide-in-from-left-2 duration-300">
+                                Dionysus
+                            </h1>
+                        )}
+                    </div>
+                    <div className={cn(
+                        "transition-all duration-300",
+                        open ? "pr-2" : "pb-2 ring-1 ring-border rounded-md hover:bg-sidebar-accent"
+                    )}>
+                        <SidebarTrigger className={cn(
+                            "h-8 w-8 text-muted-foreground cursor-pointer hover:text-primary transition-colors",
+                            !open && "hover:bg-transparent"
+                        )} />
+                    </div>
                 </div>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel className="px-3 text-xs font-medium text-muted-foreground/70">
+                    <SidebarGroupLabel className="px-3 text-sm font-medium text-muted-foreground/70">
                         Application
                     </SidebarGroupLabel>
                     <SidebarMenu className="px-2 mt-2 gap-1">
                         {items?.map((item) => (
                             <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton asChild tooltip={item.title}>
+                                <SidebarMenuButton
+                                    asChild
+                                    tooltip={item.title}
+                                    isActive={pathname === item.url}
+                                >
                                     <Link
                                         href={item.url}
                                         className={cn(
                                             "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
                                             pathname === item.url
-                                                ? "bg-primary/20 text-primary"
+                                                ? "bg-blue-300! text-primary hover:bg-blue-400!"
                                                 : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                                         )}
                                     >
@@ -95,7 +113,7 @@ const AppSidebar = () => {
                 </SidebarGroup>
 
                 <SidebarGroup>
-                    <SidebarGroupLabel className="px-3 text-xs font-medium text-muted-foreground/70">
+                    <SidebarGroupLabel className="px-3 text-sm font-medium text-muted-foreground/70">
                         Your Projects
                     </SidebarGroupLabel>
 
@@ -111,7 +129,7 @@ const AppSidebar = () => {
                                             <div className={cn(
                                                 "rounded-sm border size-6 flex items-center justify-center text-sm font-medium shrink-0 transition-colors",
                                                 project.id === projectId
-                                                    ? "bg-blue-600 text-white border-blue-500"
+                                                    ? "bg-blue-300 text-black border-blue-500"
                                                     : "bg-background text-muted-foreground border-border"
                                             )}>
                                                 {project.name[0]}
