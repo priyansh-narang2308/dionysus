@@ -59,13 +59,13 @@ const AppSidebar = () => {
 
     return (
         <Sidebar
-  collapsible="icon"
-  variant="floating"
-  className="
+            collapsible="icon"
+            variant="floating"
+            className="
     fixed md:relative
     z-40
 "
->
+        >
 
 
             <SidebarHeader>
@@ -137,7 +137,9 @@ const AppSidebar = () => {
                                     <SidebarMenuButton
                                         asChild
                                         tooltip={!open ? item.title : undefined}
-                                        isActive={active}
+                                        className={cn(
+                                            active && "bg-blue-600 hover:bg-blue-700 text-white! shadow-md shadow-blue-600/30"
+                                        )}
                                     >
 
                                         <Link
@@ -147,9 +149,7 @@ const AppSidebar = () => {
                                                 open
                                                     ? "gap-3 px-3 py-2.5 rounded-lg"
                                                     : "justify-center w-10 h-10 rounded-lg",
-                                                active
-                                                    ? "bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                                                    : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                                                !active && "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
                                             )}
                                         >
 
@@ -157,7 +157,7 @@ const AppSidebar = () => {
                                                 className={cn(
                                                     "size-5 shrink-0",
                                                     active
-                                                        ? "text-blue-600 dark:text-blue-400"
+                                                        ? "text-white"
                                                         : ""
                                                 )}
                                             />
@@ -169,6 +169,7 @@ const AppSidebar = () => {
                                             )}
 
                                         </Link>
+
 
                                     </SidebarMenuButton>
 
@@ -205,6 +206,9 @@ const AppSidebar = () => {
                                         <SidebarMenuButton
                                             asChild
                                             tooltip={!open ? project.name : undefined}
+                                            className={cn(
+                                                active && "bg-blue-600 hover:bg-blue-700 text-white! shadow-sm"
+                                            )}
                                         >
 
                                             <div
@@ -214,9 +218,7 @@ const AppSidebar = () => {
                                                     open
                                                         ? "gap-3 px-3 py-2 rounded-lg"
                                                         : "justify-center w-10 h-10 rounded-lg",
-                                                    active
-                                                        ? "bg-blue-500/20"
-                                                        : "hover:bg-sidebar-accent"
+                                                    !active && "hover:bg-sidebar-accent"
                                                 )}
                                             >
 
@@ -226,7 +228,7 @@ const AppSidebar = () => {
                                                         ? "size-6 rounded-md border"
                                                         : "size-6 rounded-md",
                                                     active
-                                                        ? "bg-blue-500 text-white border-blue-500"
+                                                        ? "bg-white text-blue-600 border-white"
                                                         : "bg-muted text-muted-foreground border-border"
                                                 )}>
                                                     {project.name[0]}
@@ -236,7 +238,7 @@ const AppSidebar = () => {
                                                     <span className={cn(
                                                         "text-sm font-medium",
                                                         active
-                                                            ? "text-blue-600 dark:text-blue-400"
+                                                            ? "text-white"
                                                             : "text-muted-foreground"
                                                     )}>
                                                         {project.name}
