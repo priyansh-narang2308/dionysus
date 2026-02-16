@@ -7,3 +7,9 @@
 ## Using octokit to get the github files
 
 ## So if u add github.com/username/commit/commithash.diff (This will show the what all changes happend in the commit made so using that we will feed to gemini api)
+
+## Using prisma to store the data in the database
+
+## Using clerk for authentication
+
+## 2:11

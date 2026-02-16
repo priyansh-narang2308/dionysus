@@ -41,7 +41,7 @@ export const getCommitHashes = async (githubUrl: string): Promise<ResponseType[]
 }
 
 export const pullCommits = async (projectId: string) => {
-    const { project, githubUrl } = await fetchProjectGithubUrl(projectId)
+    const { githubUrl } = await fetchProjectGithubUrl(projectId)
     const commitHashes = await getCommitHashes(githubUrl)
     // get the most updated 15 comits and compare with the daabse have we read that or not as we dont want summary for all commits
     const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
