@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import type { Document } from "@langchain/core/documents";
 
 export const genAI = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY!
@@ -57,5 +58,44 @@ Summarise the following git diff:
 ${diff}`
     });
 
-    return response.text ?? "No summary generated.";
+    return response.candidates?.[0]?.content?.parts?.[0]?.text ?? "No summary generated.";
 };
+
+
+export async function summarizeCode(doc: Document) {
+    console.log("Getting summary for: ", doc.metadata.source);
+    const code = doc.pageContent.slice(0, 10000); // limit to 10000 chars
+    const response = await genAI.models.generateContent({
+        model,
+        contents: `You are an intelligent senior software engineer specializing in developer onboarding.
+You are explaining the purpose and functionality of the file "${doc.metadata.source}" to a new junior engineer.
+Provide a high-level summary that covers:
+1. The primary responsibility of this file.
+2. The key functions, classes, or constants it exports.
+3. How it fits into the overall architecture (if clear from the code).
+
+Keep the explanation clear, professional, and under 100 words.
+---
+CODE:
+${code}
+---
+SUMMARY:`
+    });
+
+
+    return response.candidates?.[0]?.content?.parts?.[0]?.text ?? "No summary generated.";
+}
+
+export async function generateEmbedding(text: string) {
+    const response = await genAI.models.embedContent({
+        model: "models/gemini-embedding-001",
+        contents: [{ parts: [{ text }] }]
+    });
+
+    return response.embeddings?.[0]?.values ?? [];
+}
+
+// console.log(await generateEmbedding("HELLO WORLD"))
+
+// const models = await genAI.models.list();
+// console.log("Available models:", JSON.stringify(models, null, 2));
