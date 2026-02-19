@@ -12,4 +12,3 @@
 
 ## Using clerk for authentication
 
-## 2:11

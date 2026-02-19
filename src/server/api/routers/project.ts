@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { pullCommits } from "@/lib/github-fetch";
+import { indexGithubRepo } from "@/lib/github-loader-files";
 
 export const projectRouter = createTRPCRouter({
     createProject: protectedProcedure
@@ -24,6 +25,8 @@ export const projectRouter = createTRPCRouter({
                     }
                 }
             })
+            // loads alll docs and summary embeddings
+            await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
             await pullCommits(project.id)
             return project
         }),
