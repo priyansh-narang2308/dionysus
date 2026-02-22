@@ -64,10 +64,11 @@ ${diff}`
 
 export async function summarizeCode(doc: Document) {
     console.log("Getting summary for: ", doc.metadata.source);
-    const code = doc.pageContent.slice(0, 10000); // limit to 10000 chars
-    const response = await genAI.models.generateContent({
-        model,
-        contents: `You are an intelligent senior software engineer specializing in developer onboarding.
+    try {
+        const code = doc.pageContent.slice(0, 10000); // limit to 10000 chars
+        const response = await genAI.models.generateContent({
+            model,
+            contents: `You are an intelligent senior software engineer specializing in developer onboarding.
 You are explaining the purpose and functionality of the file "${doc.metadata.source}" to a new junior engineer.
 Provide a high-level summary that covers:
 1. The primary responsibility of this file.
@@ -80,10 +81,14 @@ CODE:
 ${code}
 ---
 SUMMARY:`
-    });
+        });
 
 
-    return response.candidates?.[0]?.content?.parts?.[0]?.text ?? "No summary generated.";
+        return response.candidates?.[0]?.content?.parts?.[0]?.text ?? "No summary generated.";
+    } catch (error) {
+        console.log("Error generating summary", error)
+        return "No summary generated.";
+    }
 }
 
 export async function generateEmbedding(text: string) {
@@ -95,7 +100,7 @@ export async function generateEmbedding(text: string) {
     return response.embeddings?.[0]?.values ?? [];
 }
 
-// console.log(await generateEmbedding("HELLO WORLD"))
+// console.log(await gen erateEmbedding("HELLO WORLD"))
 
 // const models = await genAI.models.list();
 // console.log("Available models:", JSON.stringify(models, null, 2));

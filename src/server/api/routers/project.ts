@@ -25,7 +25,7 @@ export const projectRouter = createTRPCRouter({
                     }
                 }
             })
-            // loads alll docs and summary embeddings
+            // loads alll docs and summary embeddingsj
             await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
             await pullCommits(project.id)
             return project
