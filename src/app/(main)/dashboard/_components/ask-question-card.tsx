@@ -11,6 +11,7 @@ import { askQuestion } from "./actions"
 import { readStreamableValue } from "@ai-sdk/rsc"
 
 import MDEditor from "@uiw/react-md-editor"
+import CodeReference from "./code-reference"
 
 const AskQuestionCard = () => {
 
@@ -51,18 +52,12 @@ const AskQuestionCard = () => {
                     </DialogHeader>
 
                     <MDEditor.Markdown source={answer} className="max-w-[70vw] h-full! max-h-[40vh] overflow-scroll" />
-
+                    <div className="h-4"> </div>
+                    <CodeReference filesReferences={filesReferences} />
                     <Button type="button" className="px-6 bg-blue-600 hover:bg-blue-700 font-medium cursor-pointer shadow-sm hover:shadow-md transition-all" onClick={() => setOpen(false)}>
                         Close
                     </Button>
-                    <h1>Files References</h1>
-                    {filesReferences.map((file) => (
-                        <div key={file.fileName} className="mt-4">
-                            <h2>{file.fileName}</h2>
-                            <p>{file.summary}</p>
-                            <pre>{file.sourceCode}</pre>
-                        </div>
-                    ))}
+
                 </DialogContent>
             </Dialog>
 
