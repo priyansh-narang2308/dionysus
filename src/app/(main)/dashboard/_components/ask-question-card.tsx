@@ -15,6 +15,7 @@ import CodeReference from "./code-reference"
 import { Save } from "lucide-react"
 import { api } from "@/trpc/react"
 import { toast } from "sonner"
+import useRefetch from "@/hooks/use-refetch"
 
 const AskQuestionCard = () => {
 
@@ -46,6 +47,8 @@ const AskQuestionCard = () => {
         setLoading(false)
     }
 
+    const refetch = useRefetch()
+
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
@@ -68,6 +71,7 @@ const AskQuestionCard = () => {
                                     }, {
                                         onSuccess: () => {
                                             toast.success("Answer saved successfully!")
+                                            void refetch();
                                         },
                                         onError: () => {
                                             toast.error("Failed to save answer. Please try again.")
