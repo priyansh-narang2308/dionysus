@@ -10,7 +10,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { db } from "@/server/db";
+import { db } from "../db";
 import { auth } from "@clerk/nextjs/server";
 
 /**
@@ -84,7 +84,7 @@ export const createTRPCRouter = t.router;
 
 const isAuthenticated = t.middleware(async ({ next, ctx }) => {
   const user = await auth()
-  if (!user) {
+  if (!user.userId) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "You are not authorized to perform this action" })
   }
   return next({

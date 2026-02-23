@@ -25,6 +25,8 @@ model User {
 
     credits        Int             @default(200) // 1 credit means 1 file processed
     userToProjects UserToProject[]
+
+    questionsAsked SaveQuestion[]
 }
 
 model Project {
@@ -41,6 +43,8 @@ model Project {
     userToProjects       UserToProject[]
     commits              GithubCommits[]
     sourceCodeEmbeddings SourceCodeEmbedding[]
+
+    savedQuestions SaveQuestion[]
 }
 
 // User can have multiple projects
@@ -89,4 +93,23 @@ model GithubCommits {
 
     // The AI Summary
     commitSummary String
+}
+
+
+model SaveQuestion{
+    id String @id @default(uuid())
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    question String
+    answer   String
+
+    filesReference Json?
+
+    projectId String
+    project   Project @relation(fields: [projectId], references: [id])
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
 }
