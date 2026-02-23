@@ -11,6 +11,9 @@ const google = createGoogleGenerativeAI({
 })
 
 export async function askQuestion(question: string, projectId: string) {
+    if (!question.trim()) {
+        throw new Error("Question cannot be empty")
+    }
     const stream = createStreamableValue<string>("")
 
     const queryVector = await generateEmbedding(question)
@@ -33,39 +36,44 @@ export async function askQuestion(question: string, projectId: string) {
         context += `source: ${doc.fileName}\nCode: \n${doc.sourceCode}\nSummary: ${doc.summary}\n\n`
     }
     void (async () => {
-        const { textStream } = streamText({
-            model: google("gemini-1.5-flash"),
-            prompt: `
-            You are a ai code assistant who answers questions about the codebase.Your target audience is a technical intern.
-AI assistant is a brand new, powerful, human - like artificial intelligence.
-The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-AI is a well - behaved and well - mannered individual.
-AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in.
-If the question is asking about code or a specific file, AI will provide the detailed answer, giving step by step instructions.
-START CONTEXT BLOCK
-${context}
-END CONTEXT BLOCK
+        try {
+            const { textStream } = streamText({
+                model: google("gemini-flash-latest"),
+                prompt: `
+        You are an AI code assistant who answers questions about the codebase. Your target audience is a technical intern.
+        AI assistant is a brand new, powerful, human-like artificial intelligence.
+        The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
+        AI is a well-behaved and well-mannered individual.
+        AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
+        AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic.
+        If the question is asking about code or a specific file, AI will provide the detailed answer, giving step by step instructions.
 
-START QUESTION
-${question}
-END QUESTION
-AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
-If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer."
-AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
-AI assistant will not invent anything that is not drawn directly from the context.
-    Answer in markdown syntax, with code snippets if needed.Be as detailed as possible when answering. 
-        
+        START CONTEXT BLOCK
+        ${context}
+        END CONTEXT BLOCK
+
+        START QUESTION
+        ${question}
+        END QUESTION
+
+        AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
+        If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer."
+        AI assistant will not apologize for previous responses, but instead will indicate new information was gained.
+        AI assistant will not invent anything that is not drawn directly from the context.
+        Answer in markdown syntax, with code snippets if needed. Be as detailed as possible when answering.
         `,
-        })
+            })
 
-        // This will used to chunk th data
-        for await (const delta of textStream) {
-            stream.update(delta)
+            for await (const delta of textStream) {
+                stream.update(delta)
+            }
+        } catch (error) {
+            console.error("Error in askQuestion stream:", error)
+            stream.update("An error occurred while generating the answer.")
+        } finally {
+            stream.done()
         }
-
-        stream.done()
     })()
 
-    return { output: stream,filesReferences:result }
+    return { output: stream.value, filesReferences: result }
 }

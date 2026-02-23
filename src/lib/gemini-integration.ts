@@ -91,7 +91,10 @@ SUMMARY:`
     }
 }
 
-export async function generateEmbedding(text: string) {
+export async function generateEmbedding(text: string): Promise<number[]> {
+    if (!text.trim()) {
+        return new Array<number>(768).fill(0);
+    }
     const response = await genAI.models.embedContent({
         model: "models/gemini-embedding-001",
         contents: [{ parts: [{ text }] }]
@@ -100,7 +103,7 @@ export async function generateEmbedding(text: string) {
     return response.embeddings?.[0]?.values ?? [];
 }
 
-// console.log(await gen erateEmbedding("HELLO WORLD"))
+// console.log(await generateEmbedding("HELLO WORLD"))
 
 // const models = await genAI.models.list();
 // console.log("Available models:", JSON.stringify(models, null, 2));

@@ -7,43 +7,97 @@ import { Textarea } from "@/components/ui/textarea"
 import useProject from "@/hooks/use-project"
 import Image from "next/image"
 import { useState } from "react"
+import { askQuestion } from "./actions"
+import { readStreamableValue } from "@ai-sdk/rsc"
+
+import MDEditor from "@uiw/react-md-editor"
 
 const AskQuestionCard = () => {
 
     const { project } = useProject()
     const [open, setOpen] = useState(false)
     const [question, setQuestion] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [filesReferences, setFilesReferences] = useState<{ fileName: string; sourceCode: string, summary: string }[]>([])
+    const [answer, setAnswer] = useState("")
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setAnswer("")
+        setFilesReferences([])
         e.preventDefault()
+        if (!project?.id) return
+        setLoading(true)
+        //fetch it from actions
+        const { output, filesReferences } = await askQuestion(question, project.id)
         setOpen(true)
+        setFilesReferences(filesReferences)
+
+        for await (const delta of readStreamableValue(output)) {
+            if (delta) {
+                setAnswer((ans) => ans + delta)
+            }
+        }
+        setLoading(false)
     }
 
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-[80vw]">
                     <DialogHeader>
                         <DialogTitle>
-
                             <Image src={"/logo.png"} alt="logo" width={40} height={40} />
                         </DialogTitle>
                     </DialogHeader>
+
+                    <MDEditor.Markdown source={answer} className="max-w-[70vw] h-full! max-h-[40vh] overflow-scroll" />
+
+                    <Button type="button" className="px-6 bg-blue-600 hover:bg-blue-700 font-medium cursor-pointer shadow-sm hover:shadow-md transition-all" onClick={() => setOpen(false)}>
+                        Close
+                    </Button>
+                    <h1>Files References</h1>
+                    {filesReferences.map((file) => (
+                        <div key={file.fileName} className="mt-4">
+                            <h2>{file.fileName}</h2>
+                            <p>{file.summary}</p>
+                            <pre>{file.sourceCode}</pre>
+                        </div>
+                    ))}
                 </DialogContent>
             </Dialog>
 
-            <Card className="relative col-span-3">
-                <CardHeader>
-                    <CardTitle>Ask a Question</CardTitle>
+            <Card className="col-span-3 border border-border/50 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-semibold tracking-tight">
+                        Ask a Question
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                        Get instant help with your code, files, or setup.
+                    </p>
                 </CardHeader>
-                <CardContent>
-                    <form onSubmit={onSubmit}>
-                        <Textarea placeholder="Which file should I edit to change the home page?" />
-                        <div className="h-4"></div>
 
-                        <Button type="submit">
-                            Ask Dionysus!
-                        </Button>
+                <CardContent>
+                    <form onSubmit={onSubmit} className="space-y-4">
+
+                        <Textarea
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            placeholder="Example: Which file should I edit to change the home page?"
+                            className="min-h-[120px] resize-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                        />
+
+                        <div className="flex items-center justify-between">
+
+
+                            <Button
+                                disabled={loading || !question.trim()}
+                                type="submit"
+                                className="px-6 bg-blue-600 hover:bg-blue-700 font-medium cursor-pointer shadow-sm hover:shadow-md transition-all"
+                            >
+                                Ask Dionysus
+                            </Button>
+                        </div>
+
                     </form>
                 </CardContent>
             </Card>
