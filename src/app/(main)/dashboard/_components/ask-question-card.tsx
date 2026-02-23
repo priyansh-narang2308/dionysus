@@ -12,6 +12,9 @@ import { readStreamableValue } from "@ai-sdk/rsc"
 
 import MDEditor from "@uiw/react-md-editor"
 import CodeReference from "./code-reference"
+import { Save } from "lucide-react"
+import { api } from "@/trpc/react"
+import { toast } from "sonner"
 
 const AskQuestionCard = () => {
 
@@ -21,6 +24,8 @@ const AskQuestionCard = () => {
     const [loading, setLoading] = useState(false)
     const [filesReferences, setFilesReferences] = useState<{ fileName: string; sourceCode: string, summary: string }[]>([])
     const [answer, setAnswer] = useState("")
+
+    const saveAnswer = api.project.saveAnswer.useMutation()
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         setAnswer("")
@@ -46,9 +51,32 @@ const AskQuestionCard = () => {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="sm:max-w-[80vw]">
                     <DialogHeader>
-                        <DialogTitle>
-                            <Image src={"/logo.png"} alt="logo" width={40} height={40} />
-                        </DialogTitle>
+                        <div className="flex items-center gap-2">
+
+                            <DialogTitle>
+                                <Image src={"/logo.png"} alt="logo" width={40} height={40} />
+                            </DialogTitle>
+
+                            <Button
+                                disabled={saveAnswer.isPending}
+                                variant={"outline"} onClick={() => {
+                                    saveAnswer.mutate({
+                                        projectId: project!.id,
+                                        question,
+                                        answer,
+                                        filesReferences
+                                    }, {
+                                        onSuccess: () => {
+                                            toast.success("Answer saved successfully!")
+                                        },
+                                        onError: () => {
+                                            toast.error("Failed to save answer. Please try again.")
+                                        }
+                                    })
+                                }} >
+                                <Save />
+                                Save Answer</Button>
+                        </div>
                     </DialogHeader>
 
                     <MDEditor.Markdown source={answer} className="max-w-[70vw] h-full! max-h-[40vh] overflow-scroll" />

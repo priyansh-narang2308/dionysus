@@ -20,7 +20,7 @@ export const projectRouter = createTRPCRouter({
                     githubUrl: input.githubUrl,
                     userToProjects: {
                         create: {
-                            userId: ctx.user.userId! //not always be true
+                            userId: ctx.user.userId
                         }
                     }
                 }
@@ -36,7 +36,7 @@ export const projectRouter = createTRPCRouter({
             where: {
                 userToProjects: {
                     some: {
-                        userId: ctx.user.userId!
+                        userId: ctx.user.userId
                     }
                 },
                 deletedAt: null
@@ -77,5 +77,31 @@ export const projectRouter = createTRPCRouter({
         .input(z.object({ projectId: z.string() }))
         .mutation(async ({ input }) => {
             return await pullCommits(input.projectId)
+        }),
+
+    saveAnswer: protectedProcedure
+        .input(
+            z.object({
+                projectId: z.string(),
+                question: z.string(),
+                answer: z.string(),
+                filesReferences: z.array(z.object({
+                    fileName: z.string(),
+                    sourceCode: z.string(),
+                    summary: z.string()
+                })).optional()
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const savedQuestion = await ctx.db.saveQuestion.create({
+                data: {
+                    projectId: input.projectId,
+                    question: input.question,
+                    answer: input.answer,
+                    filesReference: input.filesReferences ?? {},
+                    userId: ctx.user.userId
+                }
+            })
+            return savedQuestion
         })
 });
