@@ -68,10 +68,19 @@ export const projectRouter = createTRPCRouter({
     archiveProject: protectedProcedure
         .input(z.object({ projectId: z.string() }))
         .mutation(async ({ ctx, input }) => {
-            return await ctx.db.project.update({
-                where: { id: input.projectId },
-                data: { deletedAt: new Date() }
-            })
+            const deleteEmbeddings = ctx.db.sourceCodeEmbedding.deleteMany({ where: { projectId: input.projectId } })
+            const deleteCommits = ctx.db.githubCommits.deleteMany({ where: { projectId: input.projectId } })
+            const deleteQuestions = ctx.db.saveQuestion.deleteMany({ where: { projectId: input.projectId } })
+            const deleteUserProjects = ctx.db.userToProject.deleteMany({ where: { projectId: input.projectId } })
+            const deleteProject = ctx.db.project.delete({ where: { id: input.projectId } })
+
+            return await ctx.db.$transaction([
+                deleteEmbeddings,
+                deleteCommits,
+                deleteQuestions,
+                deleteUserProjects,
+                deleteProject
+            ])
         }),
     refreshCommits: protectedProcedure
         .input(z.object({ projectId: z.string() }))
@@ -105,25 +114,25 @@ export const projectRouter = createTRPCRouter({
             return savedQuestion
         }),
 
-        //get the questions
-        getQuestions: protectedProcedure
-            .input(
-                z.object({
-                    projectId: z.string()
-                })
-            )
-            .query(async ({ ctx, input }) => {
-                const questions = await ctx.db.saveQuestion.findMany({
-                    where: {
-                        projectId: input.projectId
-                    },
-                    include:{
-                        user:true
-                    },
-                    orderBy: {
-                        createdAt: 'desc'
-                    }
-                })
-                return questions
+    //get the questions
+    getQuestions: protectedProcedure
+        .input(
+            z.object({
+                projectId: z.string()
             })
+        )
+        .query(async ({ ctx, input }) => {
+            const questions = await ctx.db.saveQuestion.findMany({
+                where: {
+                    projectId: input.projectId
+                },
+                include: {
+                    user: true
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            })
+            return questions
+        })
 });

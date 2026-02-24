@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Dionysus",
   description: "Github Analyzer",
   icons: {
-    icon: "/icon.png"
+    icon: "/logo.png"
   }
 };
 
