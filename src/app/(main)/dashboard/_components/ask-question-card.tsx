@@ -61,8 +61,9 @@ const AskQuestionCard = () => {
                             </DialogTitle>
 
                             <Button
+                            className="cursor-pointer ml-5"
                                 disabled={saveAnswer.isPending}
-                                variant={"outline"} onClick={() => {
+                                variant={"default"} onClick={() => {
                                     saveAnswer.mutate({
                                         projectId: project!.id,
                                         question,
