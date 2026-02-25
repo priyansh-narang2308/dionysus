@@ -16,6 +16,9 @@ import {
 } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
 import { toast } from "sonner"
+import { api } from "@/trpc/react"
+import useProject from "@/hooks/use-project"
+import { useRouter } from "next/navigation"
 
 const MeetingCard = () => {
 
@@ -23,10 +26,30 @@ const MeetingCard = () => {
   const [progress, setProgress] = useState(0)
   const [fileName, setFileName] = useState<string | null>(null)
 
+  const router=useRouter()
+  const { projectId, project } = useProject()
+  const uploadMeeting = api.project.uploadMeeting.useMutation()
+
   const { startUpload } = useUploadThing("audioUploader", {
     onClientUploadComplete: (res) => {
+      if (!project) return 
       console.log("Upload complete:", res)
-      toast.success(`File Uploaded Successfully!`)
+      if (res?.[0]) {
+        uploadMeeting.mutate({
+          projectId,
+          meetingUrl: res[0].url,
+          name: fileName ?? res[0].name
+        }, {
+          onSuccess: () => {
+            toast.success(`Meeting Uploaded and Recorded!`)
+            router.push("/meetings")
+          },
+          onError: (error) => {
+            console.error("Mutation error:", error)
+            toast.error("Failed to record meeting")
+          }
+        })
+      }
       setIsUploading(false)
       setProgress(0)
     },
