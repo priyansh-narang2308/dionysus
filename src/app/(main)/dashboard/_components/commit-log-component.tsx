@@ -54,7 +54,7 @@ const CommitLogComponent = () => {
                     <button
                         onClick={() => refreshCommits.mutate({ projectId })}
                         disabled={refreshCommits.isPending}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all active:scale-95 disabled:opacity-50"
+                        className="inline-flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all active:scale-95 disabled:opacity-50"
                     >
                         <RefreshCcw className={refreshCommits.isPending ? "animate-spin size-4" : "size-4"} />
                         {refreshCommits.isPending ? "Fetching..." : "Fetch Commits"}
