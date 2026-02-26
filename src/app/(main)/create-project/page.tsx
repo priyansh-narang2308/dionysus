@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import useRefetch from "@/hooks/use-refetch"
 import { api } from "@/trpc/react"
+import { Info, Loader2, Rocket, Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import React from 'react'
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -20,28 +23,43 @@ const CreateNewProject = () => {
             githubToken: ""
         }
     })
+
     const createProject = api.project.createProject.useMutation()
+    const checkCredits = api.project.checkCredits.useMutation()
     const refetchProjects = useRefetch()
+    const router = useRouter()
+
+    const hasCheckedCredits = !!checkCredits.data
+    const insufficientCredits = hasCheckedCredits && (checkCredits.data.userCredits <= checkCredits.data.fileCount)
 
     const onSubmit = (data: FormInput) => {
-        console.log("Form Data:", data)
-        createProject.mutate({
-            name: data.projectName,
-            githubUrl: data.repoUrl,
-            githubToken: data.githubToken
-        }, {
-            onSuccess: () => {
-                toast.success("Project created successfully!")
-                void refetchProjects()
-                reset()
-            },
-            onError: (error) => {
-                toast.error(error.message ||
-                    "Failed to create a project"
-                )
+        if (hasCheckedCredits) {
+            if (insufficientCredits) {
+                return toast.error("You do not have enough credits to index this repository.")
             }
-        })
-        return true
+
+            createProject.mutate({
+                name: data.projectName,
+                githubUrl: data.repoUrl,
+                githubToken: data.githubToken
+            }, {
+                onSuccess: () => {
+
+                    toast.success("Project created successfully!")
+                    router.push("/dashboard")
+                    void refetchProjects()
+                    reset()
+                },
+                onError: (error) => {
+                    toast.error(error.message || "Failed to create a project")
+                }
+            })
+        } else {
+            checkCredits.mutate({
+                githubUrl: data.repoUrl,
+                githubToken: data.githubToken
+            })
+        }
     }
 
     return (
@@ -94,22 +112,37 @@ const CreateNewProject = () => {
                             <p className="text-[11px] text-muted-foreground px-1">Required for private repositories to fetch commit history.</p>
                         </div>
 
-                        <div className="pt-8">
+                        <div className="pt-4 space-y-4">
+                            {hasCheckedCredits && (
+                                <div className="mt-4 bg-orange-50 px-4 py-2 rounded-md border border-orange-200 text-orange-700">
+                                    <div className="flex items-center gap-2">
+                                        <Info className='size-4' />
+                                        <p className='text-sm'>
+                                            You will be charged <strong>{checkCredits.data?.fileCount}</strong> credits for this repository.
+                                        </p>
+                                    </div>
+                                    <p className='text-sm text-blue-600 ml-6'>
+                                        You have <strong>{checkCredits.data?.userCredits}</strong> credits remaining.
+                                    </p>
+                                </div>
+                            )}
+
                             <Button
                                 type="submit"
-                                disabled={createProject.isPending}
-                                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(37,99,235,0.2)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] active:scale-[0.98] flex items-center justify-center gap-2 group cursor-pointer"
+                                disabled={createProject.isPending || checkCredits.isPending}
+                                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-md cursor-pointer active:scale-[0.98] flex items-center justify-center gap-2"
                             >
-                                {createProject.isPending ? (
-                                    <span className="flex items-center gap-2">
-                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white cursor-pointer" />
-                                        Creating...
-                                    </span>
-                                ) : (
-                                    <>
-                                        Create Project
-                                    </>
+                                {(createProject.isPending || checkCredits.isPending) && (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
                                 )}
+
+                                {createProject.isPending
+                                    ? "Creating Project..."
+                                    : checkCredits.isPending
+                                        ? "Checking Credits..."
+                                        : hasCheckedCredits
+                                            ? "Create Project"
+                                            : "Check Credits"}
                             </Button>
                         </div>
                     </form>

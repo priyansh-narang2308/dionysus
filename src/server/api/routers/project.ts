@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { pullCommits } from "@/lib/github-fetch";
-import { indexGithubRepo } from "@/lib/github-loader-files";
+import { checkCredits, indexGithubRepo } from "@/lib/github-loader-files";
 
 export const projectRouter = createTRPCRouter({
     createProject: protectedProcedure
@@ -13,6 +13,23 @@ export const projectRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+
+            const user = await ctx.db.user.findUnique({
+                where: {
+                    id: ctx.user.userId
+                }
+            })
+
+            if (!user) {
+                throw new Error("User not found")
+            }
+
+            const currCredits = user.credits || 0
+            const fileCount = await checkCredits(input.githubUrl, input.githubToken)
+
+            if (currCredits < fileCount) {
+                throw new Error("Insufficient credits")
+            }
 
             const project = await ctx.db.project.create({
                 data: {
@@ -28,6 +45,16 @@ export const projectRouter = createTRPCRouter({
             // loads alll docs and summary embeddingsj
             await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
             await pullCommits(project.id)
+            await ctx.db.user.update({
+                where: {
+                    id: ctx.user.userId
+                },
+                data: {
+                    credits: {
+                        decrement: fileCount //decrease it
+                    }
+                }
+            })
             return project
         }),
     // Fetch all the projects from the database
@@ -197,4 +224,12 @@ export const projectRouter = createTRPCRouter({
         })
         return user
     }),
+
+
+    checkCredits: protectedProcedure.input(z.object({ githubUrl: z.string(), githubToken: z.string().optional() })).mutation(async ({ input, ctx }) => {
+        // Check the files then credits
+        const fileCount = await checkCredits(input.githubUrl, input.githubToken)
+        const userCredits = await ctx.db.user.findUnique({ where: { id: ctx.user.userId }, select: { credits: true } })
+        return { fileCount, userCredits: userCredits?.credits ?? 0 }
+    })
 });

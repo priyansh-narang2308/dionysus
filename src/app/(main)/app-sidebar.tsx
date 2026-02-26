@@ -297,15 +297,13 @@ const AppSidebar = () => {
                                                 </div>
 
                                                 {open && (
-                                                    <div onClick={(e) => handleDeleteProject(e)} className="absolute right-2 opacity-0 group-hover/project:opacity-100 transition-opacity">
+                                                    <div onClick={(e) => handleDeleteProject(e)} className="absolute right-2 flex items-center">
                                                         <AlertDialog>
                                                             <AlertDialogTrigger asChild>
                                                                 <button
                                                                     className={cn(
                                                                         "p-1.5 rounded-md cursor-pointer flex items-center justify-center",
-                                                                        active
-                                                                            ? "hover:bg-blue-800 text-white"
-                                                                            : "hover:bg-red-100 hover:text-red-600 text-muted-foreground"
+                                                                        "hover:bg-red-600 hover:text-white text-white"
                                                                     )}
                                                                     aria-label="Delete project"
                                                                 >
@@ -322,7 +320,7 @@ const AppSidebar = () => {
                                                                     </AlertDialogDescription>
                                                                 </AlertDialogHeader>
                                                                 <AlertDialogFooter>
-                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
                                                                     <AlertDialogAction
                                                                         onClick={(e) => {
                                                                             e.preventDefault()

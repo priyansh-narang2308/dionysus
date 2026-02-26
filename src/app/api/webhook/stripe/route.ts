@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
     console.log(`[Stripe Webhook] Received event type: ${eventType}`)
 
     if (eventType === "checkout.session.completed") {
-        const session = event.data.object as any as Stripe.Checkout.Session
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const session = event.data.object as Stripe.Checkout.Session
         const credits = Number(session.metadata?.credits)
         const userId = session.client_reference_id
 

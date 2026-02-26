@@ -4,52 +4,60 @@ import { summarizeCode, generateEmbedding } from "./gemini-integration";
 import { db } from "@/server/db";
 import { Octokit } from "octokit";
 
-const getFileCount = async (path: string, octoKit: Octokit, githubOwner: string, githubRepo: string, acc = 0) => {
-
-    const { data } = await octoKit.rest.repos.getContent({ owner: githubOwner, repo: githubRepo, path })
-    if (!Array.isArray(data) && data.type === "file") {
-        return acc + 1
-    }
-    if (Array.isArray(data)) {
-        let fileCount = 0
-        const directories: string[] = []
-
-        for (const item of data) {
-            if (item.type === "dir") {
-                directories.push(item.path)
-            } else if (item.type === "file") {
-                fileCount++
-            }
-        }
-
-        if (directories.length > 0) {
-            const directoryCounts = await Promise.all(directories.map(async (dirPath) => {
-                return getFileCount(dirPath, octoKit, githubOwner, githubRepo, 0)
-            }))
-            fileCount += directoryCounts.reduce((acc, item) => acc + item, 0)
-        }
-
-        return acc + fileCount
-    }
-    return acc
-}
+// No longer using recursive getFileCount to avoid rate limits
+// Using Git Tree API instead in checkCredits
 
 export const checkCredits = async (githubUrl: string, githubToken?: string) => {
     // Find out how many files are there in the repo
+    console.log("Checking credits for:", githubUrl)
 
     const octoKit = new Octokit({
-        auth: githubToken
+        auth: githubToken === "" ? undefined : githubToken
     })
-    const githubOwner = githubUrl.split("/")[3]
-    const githubRepo = githubUrl.split("/")[4]
+
+    // Robust URL parsing: handles https://github.com/owner/repo or owner/repo or with .git/trailing slash
+    const cleanUrl = githubUrl.replace(/\/$/, "").replace(/\.git$/, "")
+    const urlParts = cleanUrl.split("/")
+
+    const githubRepo = urlParts.pop()
+    const githubOwner = urlParts.pop()
+
+    console.log(`Extracted - Owner: ${githubOwner}, Repo: ${githubRepo}`)
 
     if (!githubOwner || !githubRepo) {
-        throw new Error("Invalid github url")
+        throw new Error("Invalid github url. Please provide a valid GitHub repository URL.")
     }
 
-    const fileCount = await getFileCount("", octoKit, githubOwner, githubRepo, 0)
+    try {
+        // First, get the default branch (usually main or master)
+        const { data: repoData } = await octoKit.rest.repos.get({
+            owner: githubOwner,
+            repo: githubRepo
+        })
 
-    return fileCount
+        // Use the Git Tree API with recursive=true to get ALL files in one request
+        // tree_sha can be a branch name
+        const { data: treeData } = await octoKit.rest.git.getTree({
+            owner: githubOwner,
+            repo: githubRepo,
+            tree_sha: repoData.default_branch,
+            recursive: "true"
+        })
+
+        // Filter for blobs (files) and skip common ignored directories if necessary
+        // but for credit calculation, we usually count all source files.
+        const fileCount = treeData.tree.filter(item => item.type === "blob").length
+
+        console.log(`Successfully counted ${fileCount} files for ${githubOwner}/${githubRepo}`)
+        return fileCount
+
+    } catch (error) {
+        console.error("Error index checkCredits:", error)
+        if (error instanceof Error && 'status' in error && error.status === 404) {
+            throw new Error(`Repository not found: ${githubOwner}/${githubRepo}. If it's private, ensure your token is correct and has "repo" scope.`)
+        }
+        throw error
+    }
 }
 
 export const loadGithubRepo = async (githubUrl: string, githubToken?: string) => {
