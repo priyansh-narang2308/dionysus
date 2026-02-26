@@ -10,12 +10,13 @@ export default function GlassHeroDemo() {
 
   return (
     <div className='relative w-full min-h-screen overflow-hidden bg-[#050505] flex flex-col font-sans select-none cursor-none'>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src='https://images.unsplash.com/photo-1516466723877-e4ec1d736c8a?auto=format&fit=crop&q=80'
         alt='Background'
         className='absolute inset-0 w-full h-full object-cover opacity-60'
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/40 via-[#050505]/20 to-[#050505]/95 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-b from-[#050505]/40 via-[#050505]/20 to-[#050505]/95 z-0 pointer-events-none" />
 
       <GlassNavbar />
 
@@ -38,7 +39,7 @@ export default function GlassHeroDemo() {
         <h1 className='text-center text-5xl md:text-7xl lg:text-8xl font-sans py-4 relative z-20 font-bold tracking-tighter text-white max-w-5xl mx-auto cursor-none'>
           Master your codebase.
           <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-neutral-300 via-white to-neutral-500">
+          <span className="bg-clip-text text-transparent bg-linear-to-r from-neutral-300 via-white to-neutral-500">
             Talk to your code.
           </span>
         </h1>

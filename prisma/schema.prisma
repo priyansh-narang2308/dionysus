@@ -106,7 +106,7 @@ model SaveQuestion {
 
     filesReference Json?
 
-    projectId String 
+    projectId String
     project   Project @relation(fields: [projectId], references: [id])
 
     userId String
@@ -150,4 +150,5 @@ model Issue {
 enum MeetingStatus {
     PROCESSING
     COMPLETED
+    FAILED
 }
