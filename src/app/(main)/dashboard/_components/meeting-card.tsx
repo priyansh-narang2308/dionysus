@@ -19,6 +19,8 @@ import { toast } from "sonner"
 import { api } from "@/trpc/react"
 import useProject from "@/hooks/use-project"
 import { useRouter } from "next/navigation"
+import { useMutation } from "@tanstack/react-query"
+import axios from "axios"
 
 const MeetingCard = () => {
 
@@ -26,13 +28,29 @@ const MeetingCard = () => {
   const [progress, setProgress] = useState(0)
   const [fileName, setFileName] = useState<string | null>(null)
 
-  const router=useRouter()
+  const router = useRouter()
   const { projectId, project } = useProject()
   const uploadMeeting = api.project.uploadMeeting.useMutation()
 
+  const processMeeting = useMutation({
+    mutationFn: async (data: { meetingUrl: string, projectId: string, meetingId: string }) => {
+      const { meetingUrl, projectId, meetingId } = data
+      const respoknse = await axios.post("/api/process-meeting", {
+        meetingUrl,
+        projectId,
+        meetingId
+      })
+      if (respoknse.status === 200) {
+        toast.success("Meeting processed successfully")
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return respoknse.data
+    }
+  })
+
   const { startUpload } = useUploadThing("audioUploader", {
     onClientUploadComplete: (res) => {
-      if (!project) return 
+      if (!project) return
       console.log("Upload complete:", res)
       if (res?.[0]) {
         uploadMeeting.mutate({
@@ -43,6 +61,12 @@ const MeetingCard = () => {
           onSuccess: () => {
             toast.success(`Meeting Uploaded and Recorded!`)
             router.push("/meetings")
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            processMeeting.mutateAsync({
+              meetingUrl: res[0]?.url ?? "",
+              projectId,
+              meetingId: uploadMeeting.data?.id ?? ""
+            })
           },
           onError: (error) => {
             console.error("Mutation error:", error)
