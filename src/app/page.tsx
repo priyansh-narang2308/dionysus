@@ -1,7 +1,13 @@
+"use client"
+
 import { Glass } from '@/components/ui/glass';
 import { GlassNavbar } from '@/components/landing/glass-navbar';
+import { useRouter } from 'next/navigation';
 
 export default function GlassHeroDemo() {
+
+  const router = useRouter()
+
   return (
     <div className='relative w-full min-h-screen overflow-hidden bg-[#050505] flex flex-col font-sans select-none cursor-none'>
       <img
@@ -36,7 +42,7 @@ export default function GlassHeroDemo() {
             Talk to your code.
           </span>
         </h1>
-        
+
         <p className="max-w-xl mx-auto text-center text-white/70 mt-6 mb-10 text-lg md:text-xl relative z-20 font-light hidden sm:block cursor-none">
           Link your GitHub repository and let Dionysus handle the rest. Ask questions, get direct code references, and generate AI summaries for every commit.
         </p>
@@ -45,9 +51,6 @@ export default function GlassHeroDemo() {
         </p>
 
         <div className='flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4 relative z-20 cursor-none'>
-          <button className='bg-white text-black px-8 py-4 sm:px-10 rounded-full font-semibold hover:bg-white/90 transition-all text-sm md:text-base cursor-none shadow-[0_0_30px_-5px_rgba(255,255,255,0.3)]'>
-            Get Started
-          </button>
 
           <Glass
             width='auto'
@@ -56,13 +59,13 @@ export default function GlassHeroDemo() {
             blur={12}
             tintOpacity={0.15}
           >
-            <button className='px-8 py-4 sm:px-10 text-white hover:text-white/80 transition-colors font-semibold text-sm md:text-base w-full cursor-none'>
-              Learn More
+            <button onClick={() => router.push("/dashboard")} className='px-8 py-4 sm:px-10 text-white hover:text-white/80 transition-colors font-semibold text-sm md:text-base w-full cursor-none'>
+              Get Started
             </button>
           </Glass>
         </div>
       </div>
-      
+
       {/* Absolute Mouse tracker glass circle effect for desktop pointer-events-none */}
       <div className="hidden md:block absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
         <Glass
