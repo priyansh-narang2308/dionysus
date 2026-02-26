@@ -187,6 +187,14 @@ export const projectRouter = createTRPCRouter({
         return meeting
     }),
 
-
-
+    getUserCredits: protectedProcedure.query(async ({ ctx }) => {
+        const user = await ctx.db.user.findUnique({
+            where: {
+                id: ctx.user.userId
+            }, select: {
+                credits: true
+            }
+        })
+        return user
+    }),
 });
