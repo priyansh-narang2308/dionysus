@@ -2,6 +2,30 @@
 
 Dionysus is an AI-powered codebase intelligence platform designed to help developers understand, search, and maintain their repositories with ease. By combining semantic search, meeting transcription, and automated commit analysis, Dionysus transforms your source code into a conversational and actionable knowledge base.
 
+## Architecture & Workflow
+
+Dionysus follows a sophisticated pipeline to ingest and understand your codebase:
+
+### 1. Repository Ingestion
+The system uses LangChain to load and parse files from your GitHub repository. Each file is treated as a "document" with its source and content preserved.
+
+![Step 1: Ingestion](./diagrams/step1.png)
+
+### 2. AI Summarization
+Each component of your codebase is analyzed by the Gemini API. We generate intelligent summaries for every file to capture its purpose and logic.
+
+![Step 2: Summarization](./diagrams/step2.png)
+
+### 3. Vector Embeddings
+The generated summaries are converted into 768-dimensional vector embeddings and stored in a PostgreSQL database with the pgvector extension, enabling high-performance semantic search.
+
+![Step 3: Embedding](./diagrams/step3.png)
+
+### 4. Contextual Analysis
+When you ask a question, Dionysus retrieves the most relevant code contexts and uses LLMs to provide grounded, accurate answers.
+
+![Step 4: Analysis](./diagrams/step4.png)
+
 ## Core Features
 
 - **Semantic Code Search**: Search your entire codebase using natural language. Dionysus uses vector embeddings to understand the intent behind your queries and provides direct file references.
