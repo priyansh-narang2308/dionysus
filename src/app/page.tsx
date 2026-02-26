@@ -3,13 +3,15 @@
 import { Glass } from '@/components/ui/glass';
 import { GlassNavbar } from '@/components/landing/glass-navbar';
 import { useRouter } from 'next/navigation';
+import Features from '@/components/landing/features';
+import HowItWorks from '@/components/landing/how-it-works';
 
 export default function GlassHeroDemo() {
 
   const router = useRouter()
 
   return (
-    <div className='relative w-full min-h-screen overflow-hidden bg-[#050505] flex flex-col font-sans select-none cursor-none'>
+    <div className='relative w-full min-h-screen bg-[#050505] flex flex-col font-sans cursor-none select-none'>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src='https://images.unsplash.com/photo-1516466723877-e4ec1d736c8a?auto=format&fit=crop&q=80'
@@ -67,8 +69,7 @@ export default function GlassHeroDemo() {
         </div>
       </div>
 
-      {/* Absolute Mouse tracker glass circle effect for desktop pointer-events-none */}
-      <div className="hidden md:block absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0">
+      <div className="hidden md:block fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-9999">
         <Glass
           width={180}
           height={180}
@@ -76,8 +77,13 @@ export default function GlassHeroDemo() {
           blur={3}
           tintOpacity={0.05}
           followMouse
-          className="-z-10 absolute pointer-events-none"
+          className="absolute pointer-events-none"
         />
+      </div>
+
+      <div className="relative z-10 bg-[#050505]">
+        <Features />
+        <HowItWorks />
       </div>
     </div>
   );
