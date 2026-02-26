@@ -16,10 +16,13 @@ export async function POST(req: NextRequest) {
     const { userId } = await auth()
     if (!userId) return new NextResponse("Unauthorized", { status: 401 })
 
+    let meetingId: string | undefined;
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const body = await req.json()
-        const { meetingUrl, projectId, meetingId } = bodyParser.parse(body)
+        const parsed = bodyParser.parse(body)
+        meetingId = parsed.meetingId;
+        const { meetingUrl } = parsed;
 
         const { summaries } = await processMeeting(meetingUrl)
 
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
                     gist: summary.gist ?? "",
                     headline: summary.headline ?? "",
                     summary: summary.summary ?? "",
-                    meetingId,
+                    meetingId: meetingId!,
                 }
             })
 
@@ -51,7 +54,13 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error(error)
+        if (meetingId && error instanceof Error && (error.message.includes("No transcript found") || error.message.includes("AssemblyAI Error"))) {
+            await db.meeting.update({
+                where: { id: meetingId },
+                data: { status: "FAILED" }
+            })
+            return NextResponse.json({ error: error.message }, { status: 400 })
+        }
         return NextResponse.json({ error: "Failed to process meeting" }, { status: 500 })
     }
-
 }

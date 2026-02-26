@@ -65,23 +65,18 @@ export const projectRouter = createTRPCRouter({
             })
             return commits
         }),
+
     archiveProject: protectedProcedure
         .input(z.object({ projectId: z.string() }))
         .mutation(async ({ ctx, input }) => {
-            const deleteEmbeddings = ctx.db.sourceCodeEmbedding.deleteMany({ where: { projectId: input.projectId } })
-            const deleteCommits = ctx.db.githubCommits.deleteMany({ where: { projectId: input.projectId } })
-            const deleteQuestions = ctx.db.saveQuestion.deleteMany({ where: { projectId: input.projectId } })
-            const deleteUserProjects = ctx.db.userToProject.deleteMany({ where: { projectId: input.projectId } })
-            const deleteProject = ctx.db.project.delete({ where: { id: input.projectId } })
-
-            return await ctx.db.$transaction([
-                deleteEmbeddings,
-                deleteCommits,
-                deleteQuestions,
-                deleteUserProjects,
-                deleteProject
-            ])
+            return await ctx.db.project.update({
+                where: { id: input.projectId },
+                data: {
+                    deletedAt: new Date()
+                }
+            })
         }),
+
     refreshCommits: protectedProcedure
         .input(z.object({ projectId: z.string() }))
         .mutation(async ({ input }) => {
@@ -169,5 +164,18 @@ export const projectRouter = createTRPCRouter({
             }
         })
         return meeting
-    })
+    }),
+
+    getMeetingById: protectedProcedure.input(z.object({ meetingId: z.string() })).query(async ({ ctx, input }) => {
+        const meeting = await ctx.db.meeting.findUnique({
+            where: {
+                id: input.meetingId
+            },
+            include: {
+                issues: true
+            }
+        })
+        return meeting
+    }),
+
 });

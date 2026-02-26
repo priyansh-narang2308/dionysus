@@ -58,14 +58,14 @@ const MeetingCard = () => {
           meetingUrl: res[0].url,
           name: fileName ?? res[0].name
         }, {
-          onSuccess: () => {
+          onSuccess: (data) => {
             toast.success(`Meeting Uploaded and Recorded!`)
             router.push("/meetings")
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             processMeeting.mutateAsync({
               meetingUrl: res[0]?.url ?? "",
               projectId,
-              meetingId: uploadMeeting.data?.id ?? ""
+              meetingId: data.id ?? ""
             })
           },
           onError: (error) => {

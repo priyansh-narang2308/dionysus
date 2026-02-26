@@ -1,9 +1,13 @@
 import { AssemblyAI } from "assemblyai";
 import type { Transcript } from "assemblyai";
+import { env } from "../env";
 
 const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  apiKey: env.ASSEMBLYAI_API_KEY,
 });
+
+
 
 function msToTime(ms: number) {
   const seconds = ms / 1000;
@@ -30,9 +34,16 @@ export const processMeeting = async (
     auto_chapters: true,
   });
 
+  if (transcript.status === "error") {
+    throw new Error(`AssemblyAI Error: ${transcript.error}`);
+  }
+
+  if (!transcript.text) {
+    throw new Error("No transcript found: The audio might be silent or have no speech.");
+  }
+
   const summaries =
     transcript.chapters?.map((chapter) => ({
-
       // This is what assembly ai generates!!
       start: msToTime(chapter.start),
       end: msToTime(chapter.end),
@@ -41,10 +52,9 @@ export const processMeeting = async (
       summary: chapter.summary,
     })) ?? [];
 
-  if (!transcript.text) throw new Error("No transcript found");
-
   return {
     transcript,
     summaries,
   };
 };
+

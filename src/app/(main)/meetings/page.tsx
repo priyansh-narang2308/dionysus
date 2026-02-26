@@ -1,17 +1,15 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import useProject from '@/hooks/use-project'
 import { api } from '@/trpc/react'
 import MeetingCard from '../dashboard/_components/meeting-card'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Eye, Trash2 } from 'lucide-react'
-// Import AlertDialog components
+import { Eye, Trash2, Loader2 } from 'lucide-react'
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
@@ -25,6 +23,7 @@ import { toast } from 'sonner'
 const MeetingsPage = () => {
     const { projectId } = useProject()
     const utils = api.useUtils()
+    const [deletingId, setDeletingId] = useState<string | null>(null)
 
     const { data: meetings, isLoading } = api.project.getMeetings.useQuery(
         { projectId },
@@ -33,9 +32,13 @@ const MeetingsPage = () => {
 
     const deleteMeeting = api.project.deleteMeeting.useMutation({
         onSuccess: async () => {
-            // Refetch meetings after a successful delete
             await utils.project.getMeetings.invalidate({ projectId })
             toast.success("Meeting deleted successfully")
+            setDeletingId(null)
+        },
+        onError: () => {
+            toast.error("Failed to delete meeting")
+            setDeletingId(null)
         }
     })
 
@@ -48,7 +51,7 @@ const MeetingsPage = () => {
 
             {isLoading && (
                 <div className="flex flex-col items-center justify-center py-16">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mb-4"></div>
+                    <Loader2 className="animate-spin h-8 w-8 text-gray-400 mb-4" />
                     <p className="text-lg text-gray-500 font-medium">
                         Loading meetings...
                     </p>
@@ -72,16 +75,15 @@ const MeetingsPage = () => {
                             />
                         </svg>
                     </div>
-
                     <p className="text-lg font-semibold text-gray-700 mb-1">
                         No meetings yet
                     </p>
-
                     <p className="text-md text-gray-500 text-center max-w-xs">
                         Upload your first meeting to get started. Your meetings will appear here.
                     </p>
                 </div>
             )}
+
             <ul className='divide-y divide-gray-200'>
                 {meetings?.map((meeting) => (
                     <li key={meeting.id} className='flex items-center justify-between py-5 gap-x-6'>
@@ -92,15 +94,22 @@ const MeetingsPage = () => {
                                         {meeting.name}
                                     </Link>
 
-                                    {meeting.status === "PROCESSING" ? (
+                                    {meeting.status === "PROCESSING" && (
                                         <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
                                             Processing...
                                         </Badge>
-                                    ) : (
+                                    )}
+                                    {meeting.status === "COMPLETED" && (
                                         <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
                                             Completed
                                         </Badge>
                                     )}
+                                    {meeting.status === "FAILED" && (
+                                        <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                                            Failed
+                                        </Badge>
+                                    )}
+
                                 </div>
                             </div>
 
@@ -118,9 +127,17 @@ const MeetingsPage = () => {
                                 </Button>
                             </Link>
 
-                            <AlertDialog>
+                            <AlertDialog
+                                open={deletingId === meeting.id}
+                                onOpenChange={(open) => !open && !deleteMeeting.isPending && setDeletingId(null)}
+                            >
                                 <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" className='cursor-pointer' size="sm" disabled={deleteMeeting.isPending}>
+                                    <Button
+                                        variant="destructive"
+                                        className='cursor-pointer'
+                                        size="sm"
+                                        onClick={() => setDeletingId(meeting.id)}
+                                    >
                                         <Trash2 className="h-4 w-4 mr-1" />
                                         Delete
                                     </Button>
@@ -134,13 +151,30 @@ const MeetingsPage = () => {
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            className="bg-red-600  text-white hover:bg-red-700 cursor-pointer"
-                                            onClick={() => deleteMeeting.mutate({ meetingId: meeting.id })}
+                                        <AlertDialogCancel
+                                            disabled={deleteMeeting.isPending}
+                                            className='cursor-pointer'
                                         >
-                                            {deleteMeeting.isPending ? "Deleting..." : "Delete Permanently"}
-                                        </AlertDialogAction>
+                                            Cancel
+                                        </AlertDialogCancel>
+                                        <Button
+                                            disabled={deleteMeeting.isPending}
+                                            variant="destructive"
+                                            className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                deleteMeeting.mutate({ meetingId: meeting.id });
+                                            }}
+                                        >
+                                            {deleteMeeting.isPending ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Deleting...
+                                                </>
+                                            ) : (
+                                                "Delete Permanently"
+                                            )}
+                                        </Button>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
