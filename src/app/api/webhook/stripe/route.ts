@@ -27,40 +27,34 @@ export async function POST(req: NextRequest) {
     if (eventType === "checkout.session.completed") {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         const session = event.data.object as Stripe.Checkout.Session
+        console.log("[Stripe Webhook] Full Session Object:", JSON.stringify(session, null, 2))
+
         const credits = Number(session.metadata?.credits)
         const userId = session.client_reference_id
 
-        console.log(`[Stripe Webhook] Processing completion for User: ${userId}, Credits: ${credits}`)
+        console.log(`[Stripe Webhook] Extracted -> userId: ${userId}, credits: ${credits}`)
 
         if (!userId || isNaN(credits)) {
-            console.error("[Stripe Webhook] Missing userId or valid credits in session", { userId, credits })
+            console.error("[Stripe Webhook] Validation failed. Missing userId or credits.")
             return NextResponse.json({ error: "Missing userId or credits" }, { status: 400 })
         }
 
         try {
             await db.stripeTransaction.create({
-                data: {
-                    userId,
-                    credits,
-                }
+                data: { userId, credits }
             })
-            console.log(`[Stripe Webhook] Stripe transaction record created`)
+            console.log(`[Stripe Webhook] Transaction record created in DB.`)
 
             const updatedUser = await db.user.update({
-                where: {
-                    id: userId
-                    // If you suspect ID mismatch, try email: session.customer_details?.email
-                },
+                where: { id: userId },
                 data: {
-                    credits: {
-                        increment: credits
-                    }
+                    credits: { increment: credits }
                 }
             })
-            console.log(`[Stripe Webhook] Successfully updated user ${userId}. New balance: ${updatedUser.credits}`)
+            console.log(`[Stripe Webhook] User ${userId} credits updated. New balance: ${updatedUser.credits}`)
             return NextResponse.json({ message: "Credits added successfully!" }, { status: 200 })
         } catch (dbError) {
-            console.error("[Stripe Webhook] Database update failed:", dbError)
+            console.error("[Stripe Webhook] DB Error:", dbError)
             return NextResponse.json({ error: "Database update failed" }, { status: 500 })
         }
     }

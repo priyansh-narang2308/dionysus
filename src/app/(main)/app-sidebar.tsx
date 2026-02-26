@@ -120,25 +120,26 @@ const AppSidebar = () => {
                     open ? "justify-between px-2 py-2" : "flex-col gap-4 py-2"
                 )}>
 
-                    <div className={cn(
-                        "flex items-center",
-                        open ? "gap-3" : "justify-center"
-                    )}>
-                        <Image
-                            src="/logo.png"
-                            height={40}
-                            width={40}
-                            alt="logo"
-                            className="rounded-lg shadow-sm shrink-0"
-                        />
+                    <Link href="/" className="block">
+                        <div className={cn(
+                            "flex items-center cursor-pointer hover:opacity-80 transition-opacity",
+                            open ? "gap-3" : "justify-center"
+                        )}>
+                            <Image
+                                src="/logo.png"
+                                height={40}
+                                width={40}
+                                alt="logo"
+                                className="rounded-lg shadow-sm shrink-0"
+                            />
 
-                        {open && (
-                            <h1 className="text-xl font-semibold tracking-tight text-primary/90">
-                                Dionysus
-                            </h1>
-                        )}
-                    </div>
-
+                            {open && (
+                                <h1 className="text-xl font-semibold tracking-tight text-primary/90">
+                                    Dionysus
+                                </h1>
+                            )}
+                        </div>
+                    </Link>
                     <div className={cn(
                         "flex items-center justify-center",
                         open

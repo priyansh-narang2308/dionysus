@@ -5,12 +5,15 @@ import { Slider } from "@/components/ui/slider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { createCheckoutSession } from "@/lib/stripe"
 import { api } from "@/trpc/react"
-import { Info, CreditCard, Coins, Sparkles, Loader2 } from "lucide-react"
+import { Info, CreditCard, Coins, Sparkles, Loader2, RefreshCcw } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 const BillingPage = () => {
-    const { data: user } = api.project.getUserCredits.useQuery()
+    const { data: user, refetch, isRefetching } = api.project.getUserCredits.useQuery(undefined, {
+        refetchOnWindowFocus: true
+    })
     const [creditsToBuy, setCreditsToBuy] = useState([100])
     const [loading, setLoading] = useState(false)
     const creditsToBuyAmount = creditsToBuy[0]!
@@ -40,14 +43,33 @@ const BillingPage = () => {
                     <h1 className="text-3xl font-bold tracking-tight">Billing</h1>
                     <p className="text-muted-foreground">Manage your credits and subscription</p>
                 </div>
-                <div className="bg-blue-50 border border-blue-100 px-4 py-2 rounded-xl flex items-center gap-3">
-                    <div className="bg-blue-600 p-2 rounded-lg">
-                        <Coins className="size-5 text-white" />
+
+                <div className="bg-white border border-blue-100 pl-4 pr-3 py-3 rounded-2xl flex items-center gap-4 shadow-sm hover:shadow-md transition-all duration-300 group">
+                    <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-100 flex items-center justify-center shrink-0">
+                        <Coins className="size-6 text-white" />
                     </div>
-                    <div>
-                        <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider">Balance</p>
-                        <p className="text-xl font-bold text-blue-900">{user?.credits ?? 0} Credits</p>
+                    <div className="flex flex-col">
+                        <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Balance</p>
+                        <p className="text-2xl font-black text-slate-900 leading-none mt-1">
+                            {user?.credits ?? 0} <span className="text-sm font-medium text-slate-500">Credits</span>
+                        </p>
                     </div>
+                    <div className="h-10 w-px bg-slate-100 mx-1" />
+                    <button
+                        onClick={() => {
+                            void refetch()
+                            toast.success("Balance updated")
+                        }}
+                        disabled={isRefetching}
+                        className={cn(
+                            "p-2.5 rounded-xl hover:bg-slate-50 transition-all active:scale-90 cursor-pointer",
+                            "text-slate-400 hover:text-blue-600",
+                            isRefetching && "opacity-50"
+                        )}
+                        title="Refresh balance"
+                    >
+                        <RefreshCcw className={cn("size-4", isRefetching && "animate-spin")} />
+                    </button>
                 </div>
             </div>
 
@@ -55,7 +77,6 @@ const BillingPage = () => {
                 <Card className="border-2 border-blue-50 shadow-sm overflow-hidden">
                     <CardHeader className="bg-slate-50/50 border-b">
                         <div className="flex items-center gap-2">
-                            <Sparkles className="size-5 text-blue-600" />
                             <CardTitle>Buy Credits</CardTitle>
                         </div>
                         <CardDescription>
