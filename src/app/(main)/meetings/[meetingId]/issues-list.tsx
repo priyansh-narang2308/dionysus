@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { api, type RouterOutputs } from "@/trpc/react"
-import type { Issue } from "generated/prisma"
 import { Video } from "lucide-react"
 import { useState } from "react"
 
