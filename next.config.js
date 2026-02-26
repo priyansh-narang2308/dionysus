@@ -12,6 +12,10 @@ const config = {
                 protocol: "https",
                 hostname: "avatars.githubusercontent.com",
             },
+            {
+                protocol: "https",
+                hostname: "img.clerk.com",
+            }
         ],
     },
 };

@@ -45,6 +45,15 @@ export const projectRouter = createTRPCRouter({
         return projects
     }),
 
+    getTeamMembers: protectedProcedure.input(z.object({ projectId: z.string() })).query(async ({ ctx, input }) => {
+        return await ctx.db.userToProject.findMany({
+            where: { projectId: input.projectId },
+            include: {
+                user: true
+            }
+        })
+    }),
+
     getCommits: protectedProcedure
         .input(
             z.object({
@@ -177,5 +186,7 @@ export const projectRouter = createTRPCRouter({
         })
         return meeting
     }),
+
+
 
 });
