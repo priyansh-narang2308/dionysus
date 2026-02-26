@@ -8,6 +8,7 @@ import AskQuestionCard from "./_components/ask-question-card"
 import MeetingCard from "./_components/meeting-card"
 import ArchiveButton from "./_components/archive-button"
 import InviteButton from "./_components/invite-button"
+import TeamMembers from "./_components/team-members"
 
 const Dashboard = () => {
     const { project } = useProject()
@@ -15,7 +16,7 @@ const Dashboard = () => {
     if (!project?.githubUrl) return null
 
     return (
-        <div>
+        <div className="pt-10">
             <div className="flex items-center justify-between flex-wrap gap-y-4">
                 <div className="
         group relative w-fit max-w-full
@@ -75,7 +76,7 @@ const Dashboard = () => {
                 </div>
 
                 <div className="flex items-center gap-4 ">
-                    Team Members
+                    <TeamMembers />
                     <InviteButton />
                     <ArchiveButton />
                 </div>
