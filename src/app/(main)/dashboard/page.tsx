@@ -7,6 +7,7 @@ import CommitLogComponent from "./_components/commit-log-component"
 import AskQuestionCard from "./_components/ask-question-card"
 import MeetingCard from "./_components/meeting-card"
 import ArchiveButton from "./_components/archive-button"
+import InviteButton from "./_components/invite-button"
 
 const Dashboard = () => {
     const { project } = useProject()
@@ -75,7 +76,7 @@ const Dashboard = () => {
 
                 <div className="flex items-center gap-4 ">
                     Team Members
-                    Invite Button
+                    <InviteButton />
                     <ArchiveButton />
                 </div>
 
