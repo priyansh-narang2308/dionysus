@@ -231,5 +231,16 @@ export const projectRouter = createTRPCRouter({
         const fileCount = await checkCredits(input.githubUrl, input.githubToken)
         const userCredits = await ctx.db.user.findUnique({ where: { id: ctx.user.userId }, select: { credits: true } })
         return { fileCount, userCredits: userCredits?.credits ?? 0 }
+    }),
+
+    getTransactions: protectedProcedure.query(async ({ ctx }) => {
+        return await ctx.db.stripeTransaction.findMany({
+            where: {
+                userId: ctx.user.userId
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
     })
 });
