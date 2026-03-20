@@ -138,7 +138,7 @@ export const projectRouter = createTRPCRouter({
                     projectId: input.projectId,
                     question: input.question,
                     answer: input.answer,
-                    filesReference: input.filesReferences ?? {},
+                    filesReference: input.filesReferences ?? [],
                     userId: ctx.user.userId
                 }
             })
