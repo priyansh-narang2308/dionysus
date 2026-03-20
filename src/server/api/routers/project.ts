@@ -99,7 +99,14 @@ export const projectRouter = createTRPCRouter({
                     commitDate: 'desc'
                 }
             })
-            return commits
+            
+            // Properly serialize the data to avoid digest errors
+            return commits.map(c => ({
+                ...c,
+                createdAt: c.createdAt.toISOString(),
+                updatedAt: c.updatedAt.toISOString(),
+                commitDate: c.commitDate.toISOString(),
+            }))
         }),
 
     archiveProject: protectedProcedure
@@ -138,7 +145,7 @@ export const projectRouter = createTRPCRouter({
                     projectId: input.projectId,
                     question: input.question,
                     answer: input.answer,
-                    filesReference: input.filesReferences ?? [],
+                    filesReference: input.filesReferences ? JSON.parse(JSON.stringify(input.filesReferences)) : [],
                     userId: ctx.user.userId
                 }
             })
@@ -164,7 +171,19 @@ export const projectRouter = createTRPCRouter({
                     createdAt: 'desc'
                 }
             })
-            return questions
+            
+            // Properly serialize the data to avoid digest errors
+            return questions.map(q => ({
+                ...q,
+                filesReference: q.filesReference ? JSON.parse(JSON.stringify(q.filesReference)) : [],
+                createdAt: q.createdAt.toISOString(),
+                updatedAt: q.updatedAt.toISOString(),
+                user: q.user ? {
+                    ...q.user,
+                    createdAt: q.user.createdAt.toISOString(),
+                    updatedAt: q.user.updatedAt.toISOString(),
+                } : null
+            }))
         }),
 
     uploadMeeting: protectedProcedure.input(z.object({ projectId: z.string(), meetingUrl: z.string(), name: z.string() })).mutation(async ({ ctx, input }) => {

@@ -4,132 +4,137 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import { Glass } from '@/components/ui/glass';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+const menuItems = [
+    { name: 'Features', href: '#features' },
+    { name: 'About', href: '#about' },
+];
 
 export function GlassNavbar() {
-    const [isOpen, setIsOpen] = useState(false);
+    const [menuState, setMenuState] = useState(false)
+    const [isScrolled, setIsScrolled] = useState(false)
+
+    React.useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     return (
         <>
-            <div className='absolute top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-6xl'>
-                <Glass
-                    width='100%'
-                    height={60}
-                    borderRadius={50}
-                    blur={10}
-                    tintOpacity={0.08}
-                    className="overflow-visible"
-                >
-                    <nav className='flex items-center justify-between h-full px-4 md:px-8'>
-                        <Link href="/" className="flex items-center gap-3 text-white hover:text-white/80 transition-colors z-50">
-                            <Image src={"/logo.png"} width={30} height={30} alt='image' />
-                            <span className="font-bold text-lg tracking-wider uppercase">Dionysus</span>
-                        </Link>
+            <header>
+                <nav
+                    data-state={menuState && 'active'}
+                    className="fixed z-20 w-full px-2">
+                    <div className={cn('mx-auto mt-2 max-w-6xl px-6 transition-all duration-300 lg:px-12', isScrolled && 'bg-background/50 max-w-4xl rounded-2xl border backdrop-blur-lg lg:px-5')}>
+                        <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
+                            <div className="flex w-full justify-between lg:w-auto">
+                                <Link
+                                    href="/"
+                                    aria-label="home"
+                                    className="flex items-center space-x-2">
+                                    <Image src={"/logo.png"} width={30} height={30} alt='Dionysus Logo' />
+                                    <span className="font-bold text-lg tracking-wider uppercase text-white">Dionysus</span>
+                                </Link>
 
-                        <div className='hidden md:flex gap-8 items-center'>
-                            <Link href='#features' className='text-white/80 hover:text-white transition-colors font-medium text-sm'>
-                                Features
-                            </Link>
-                            <Link href='#about' className='text-white/80 hover:text-white transition-colors font-medium text-sm'>
-                                About
-                            </Link>
-                        </div>
-
-                        <div className='hidden md:flex gap-4 items-center'>
-                            <SignedOut>
-                                <SignInButton mode="modal">
-                                    <button className="text-white/80 hover:text-white text-sm font-medium transition-colors cursor-pointer">
-                                        Sign In
-                                    </button>
-                                </SignInButton>
-                                <SignUpButton mode="modal">
-                                    <button className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors backdrop-blur-md cursor-pointer">
-                                        Sign Up
-                                    </button>
-                                </SignUpButton>
-                            </SignedOut>
-                            <SignedIn>
-                                <div className="flex items-center gap-4">
-                                    <Link
-                                        href="/dashboard"
-                                        className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg backdrop-blur-md transition-all duration-200 active:scale-95 shadow-sm"
-                                    >
-                                        Dashboard
-                                    </Link>
-
-                                    <div className="pl-2 border-l border-white/10">
-                                        <UserButton
-                                            afterSignOutUrl="/"
-                                            appearance={{
-                                                elements: {
-                                                    avatarBox: "h-9 w-9 border border-white/20 hover:scale-105 transition-transform"
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            </SignedIn>
-                        </div>
-
-                        <button
-                            className="md:hidden text-white z-50 p-2 cursor-pointer"
-                            onClick={() => setIsOpen(!isOpen)}
-                            aria-label="Toggle menu"
-                        >
-                            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                        </button>
-                    </nav>
-                </Glass>
-            </div>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="absolute top-24 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-6xl md:hidden"
-                    >
-                        <Glass
-                            width='100%'
-                            height='auto'
-                            borderRadius={24}
-                            blur={10}
-                            tintOpacity={0.08}
-                        >
-                            <div className="flex flex-col p-6 gap-6">
-                                <Link href='#features' onClick={() => setIsOpen(false)} className='text-white/90 text-lg font-medium'>Features</Link>
-                                <Link href='#about' onClick={() => setIsOpen(false)} className='text-white/90 text-lg font-medium'>About</Link>
-                                <div className="w-full h-px bg-white/20 my-2" />
-                                <SignedOut>
-                                    <div className="flex flex-col gap-4">
-                                        <SignInButton mode="modal">
-                                            <button className="text-white bg-white/10 hover:bg-white/20 transition-colors py-3 rounded-xl font-medium w-full text-center cursor-pointer">
-                                                Sign In
-                                            </button>
-                                        </SignInButton>
-                                        <SignUpButton mode="modal">
-                                            <button className="text-black bg-white hover:bg-white/90 transition-colors py-3 rounded-xl font-medium w-full text-center cursor-pointer">
-                                                Sign Up
-                                            </button>
-                                        </SignUpButton>
-                                    </div>
-                                </SignedOut>
-                                <SignedIn>
-                                    <div className="flex flex-col gap-4">
-                                        <Link href="/dashboard" onClick={() => setIsOpen(false)} className="text-white bg-white/10 hover:bg-white/20 transition-colors py-3 rounded-xl font-medium w-full text-center">
-                                            Go to Dashboard
-                                        </Link>
-
-                                    </div>
-                                </SignedIn>
+                                <button
+                                    onClick={() => setMenuState(!menuState)}
+                                    aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
+                                    className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
+                                    <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 text-white duration-200" />
+                                    <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 text-white duration-200" />
+                                </button>
                             </div>
-                        </Glass>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+                            <div className="absolute inset-0 m-auto hidden size-fit lg:block">
+                                <ul className="flex gap-8 text-sm">
+                                    {menuItems.map((item, index) => (
+                                        <li key={index}>
+                                            <Link
+                                                href={item.href}
+                                                className="text-white/80 hover:text-white block duration-150">
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
+                                <div className="lg:hidden">
+                                    <ul className="space-y-6 text-base">
+                                        {menuItems.map((item, index) => (
+                                            <li key={index}>
+                                                <Link
+                                                    href={item.href}
+                                                    className="text-white/90 hover:text-white block duration-150">
+                                                    <span>{item.name}</span>
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                                    <SignedOut>
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="sm"
+                                            className={cn(isScrolled && 'lg:hidden', 'text-white border-white/20 hover:bg-white/10')}>
+                                            <SignInButton mode="modal">
+                                                <span>Sign In</span>
+                                            </SignInButton>
+                                        </Button>
+                                        <Button
+                                            asChild
+                                            size="sm"
+                                            className={cn(isScrolled && 'lg:hidden')}>
+                                            <SignUpButton mode="modal">
+                                                <span>Sign Up</span>
+                                            </SignUpButton>
+                                        </Button>
+                                        <Button
+                                            asChild
+                                            size="sm"
+                                            className={cn(isScrolled ? 'lg:inline-flex' : 'hidden')}>
+                                            <SignUpButton mode="modal">
+                                                <span>Get Started</span>
+                                            </SignUpButton>
+                                        </Button>
+                                    </SignedOut>
+                                    <SignedIn>
+                                        <div className="flex items-center gap-4">
+                                            <Link
+                                                href="/dashboard"
+                                                className="px-4 py-2 text-sm font-medium text-white bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg transition-all duration-200"
+                                            >
+                                                Dashboard
+                                            </Link>
+
+                                            <div className="pl-2 border-l border-white/10">
+                                                <UserButton
+                                                    afterSignOutUrl="/"
+                                                    appearance={{
+                                                        elements: {
+                                                            avatarBox: "h-9 w-9 border border-white/20 hover:scale-105 transition-transform"
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </SignedIn>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
         </>
     );
 }
