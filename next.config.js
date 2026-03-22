@@ -23,6 +23,9 @@ const config = {
     },
     typescript: {
         ignoreBuildErrors: true,
+    },
+    outputFileTracingIncludes: {
+        "/**": ["./generated/prisma/**/*"],
     }
 };
 
