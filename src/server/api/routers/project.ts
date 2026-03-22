@@ -42,9 +42,6 @@ export const projectRouter = createTRPCRouter({
                     }
                 }
             })
-            // loads alll docs and summary embeddingsj
-            await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
-            await pullCommits(project.id)
             await ctx.db.user.update({
                 where: {
                     id: ctx.user.userId
@@ -55,6 +52,10 @@ export const projectRouter = createTRPCRouter({
                     }
                 }
             })
+
+            // loads alll docs and summary embeddingsj
+            await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
+            await pullCommits(project.id)
             return project
         }),
     // Fetch all the projects from the database
@@ -145,7 +146,7 @@ export const projectRouter = createTRPCRouter({
                     projectId: input.projectId,
                     question: input.question,
                     answer: input.answer,
-                    filesReference: input.filesReferences ? JSON.parse(JSON.stringify(input.filesReferences)) : [],
+                    filesReference: input.filesReferences ?? [],
                     userId: ctx.user.userId
                 }
             })
@@ -175,7 +176,7 @@ export const projectRouter = createTRPCRouter({
             // Properly serialize the data to avoid digest errors
             return questions.map(q => ({
                 ...q,
-                filesReference: q.filesReference ? JSON.parse(JSON.stringify(q.filesReference)) : [],
+                filesReference: q.filesReference ? (q.filesReference as unknown as { fileName: string; sourceCode: string; summary: string; }[]) : [],
                 createdAt: q.createdAt.toISOString(),
                 updatedAt: q.updatedAt.toISOString(),
                 user: q.user ? {
