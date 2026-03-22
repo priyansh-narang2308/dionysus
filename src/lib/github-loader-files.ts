@@ -103,14 +103,17 @@ WHERE "id" = ${sourceCodeEmbedding.id}
 
 // This will generate the embeddings using the Gemini SDK
 const generateEmbeddings = async (docs: Document[]) => {
-    return await Promise.all(docs.map(async doc => {
+    const results = [];
+    for (const doc of docs) {
         const summary = await summarizeCode(doc);
         const embedding = await generateEmbedding(summary);
-        return {
+        results.push({
             summary,
             embedding,
             sourceCode: doc.pageContent,
             fileName: (doc.metadata.source as string) ?? "unknown"
-        };
-    }));
+        });
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    return results;
 }
