@@ -9,7 +9,6 @@ import Image from "next/image"
 import MDEditor from "@uiw/react-md-editor"
 import CodeReference from "../dashboard/_components/code-reference"
 
-// shadcn empty components
 import {
     Empty,
     EmptyDescription,
@@ -64,7 +63,7 @@ const QuestionAndAnswer = () => {
                                     className="rounded-full"
                                     width={30}
                                     height={30}
-                                    src={question.user.imageUrl ?? "/default-avatar.png"}
+                                    src={question.user?.imageUrl ?? "/default.png"}
                                     alt="User Image"
                                 />
                                 <div className="text-left flex flex-col flex-1 min-w-0">
